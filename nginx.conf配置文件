@@ -1,0 +1,85 @@
+
+#user  nobody;
+worker_processes  2;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    lua_package_path '/lua/lib/?.lua;/opt/openresty/lualib/?.lua';
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    gzip  on;
+    lua_shared_dict ip_deny_list 50m;
+    lua_shared_dict ip_white_list 50m;
+    lua_shared_dict waf_conf 100m; #all conf
+    lua_shared_dict waf_monitor 500m; 
+    lua_regex_cache_max_entries 10240000;
+    init_by_lua_file /lua/waf_init.lua;
+    init_worker_by_lua_file /lua/waf_iworker.lua;
+
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        charset utf-8;
+        lua_code_cache on;
+
+        #access_log  logs/host.access.log  main;
+        location / {
+	    root /var/www/html/waf;
+            default_type text/html;
+            index  index.html index.htm;
+            access_by_lua_file /lua/waf_access.lua;
+
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+    }
+    server{
+        listen       8080;
+        lua_need_request_body on;
+        location / {
+	    index  index.html;
+            default_type text/html;
+            root /var/www/html/waf;
+        }
+    	
+    	location /api {
+    	    default_type application/json;
+    	    access_by_lua_file /lua/manager/api.lua;	
+    	}
+
+    }
+
+}

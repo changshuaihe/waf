@@ -1,0 +1,5 @@
+1.配置nginx，一个server是要部署的系统，配置上waf。注意server里面指定lua、脚本目录
+另一个是管理的server
+将web文件里面的东西放进管理server指定的目录
+2.恢复redis备份数据
+3.修改lua脚本里面的init_config.lua，指定redis服务器

@@ -1,0 +1,7 @@
+SET     'waf.conf.deny_model' 0
+DEL     'waf.ip_deny_list'
+RPUSH   'waf.ip_deny_list' 123123
+DEL     'waf.ip_white_list'
+RPUSH   'waf.ip_white_list' '1.1.1.1' 123 asdasd 42342
+SET     'waf.rule_list' '{"file_scan":{"position":"uri","content":"\\\\.(php|asp|aspx|pl)"},"sql_inject":{"position":"uri","content":"select.+(from|limit|sleep|end|concat)"}}'
+SET     'waf.rules_list' '[{"remark":"","name":"ua","content":"libwww-perl|pythoni|httrack|harvest|audit|dirbuster|pangolin|nmap|sqln|-scan|hydra|Parser|libwww|BBBike|sqlmap|w3af|owasp|Nikto|fimap|havij|PycURL|zmeu|BabyKrokodil|netsparker|httperf|bench","model":"0","position":"ua"},{"remark":"","name":"script_inject","content":"eval(|file_get_contents|include|require|require_once|shell_exec|phpinfo|system|passthru|preg_\\\\\\\\w+|execute|echo|print|print_r|var_dump|(fp)open|(script+.*(alert|cookie)+)|showmodaldialog","model":"0","position":"uri"},{"remark":"","name":"sql_inject_3","content":"(?:(union(.*?)select))","model":"1","position":"uri"},{"remark":"","name":"sql_inject_2","content":"dbms_pipe","model":"1","position":"uri"},{"remark":"","name":"sql_inject_1","content":"select.+(from|limit|sleep|end|concat)","model":"0","position":"uri"},{"remark":"","name":"file_scan","content":"\\\\.(php|asp|aspx|pl)","model":"1","position":"uri"}]'
